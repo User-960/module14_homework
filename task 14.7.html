@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    section {
+      margin-top: 100px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-top: 15px;
+    }
+
+    .m-class {
+      width: 300px;
+    }
+
+    .result {
+      display: flex;
+      flex-wrap: wrap;
+      width: 500px;
+    }
+
+    .form-btn {
+      padding: 0;
+      background-color: transparent;
+      border: none;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: none;
+      cursor: pointer;
+
+      margin: 20px 0px 20px 220px;
+      padding: 10px 15px;
+      border-radius: 1px;
+      font-size: 12px;
+      line-height: 15px;
+      text-transform: uppercase;
+      color: white;
+      background: #315efb;
+      transition: 0.3s;
+    }
+
+    .form-btn:hover {
+      box-shadow: 0px 2px 8px 2px rgba(141, 150, 178, .3);
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+  <section>
+    <div class="m-class">
+      <div class="form-group">
+        <label for="input">Номер страницы</label><br>
+        <input type="number" id="input" class="form-page"></input>
+      </div>
+      <div class="form-group">
+        <label for="input">Лимит</label><br>
+        <input type="number" id="input" class="form-limit"></input>
+      </div>
+      <button type="submit" id="button" class="form-btn">Запрос</button>
+      <div id="result">Здесь будет результат запроса</div>
+    </div>
+  </section>
+  <script>
+    // 1. Находим все элементы
+      const inputPageNode = document.querySelector(".form-page");
+      const inputLimitNode = document.querySelector(".form-limit");
+      const buttonNode = document.getElementById("button");
+      const resultNode = document.getElementById("result");
+
+
+      // 4. Пишим функцию валидации чисел
+      function validateValue(value, valuesRange) {
+        return typeof value === "number" && !isNaN(value) && value >= valuesRange[0] && value <= valuesRange[1];
+      }
+
+
+      // 5. Пишим функция отправки запроса и обработчик ответа от сервира будет добавлять объект в документ
+      function sendRequest(page, limit) {
+        let apiURL = `https://picsum.photos/v2/list?page=${page}&limit=${limit}`;
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("GET", apiURL);
+
+        xhr.send();
+
+        xhr.onload = function () {
+          let response = JSON.parse(xhr.response);
+          let images = ``;
+          localStorage.clear();
+
+          for (let img of response) {
+            images += `
+      <img src="${img.download_url}" width="300px" style="margin: 10px;">
+      `;
+          }
+
+          localStorage.setItem("images", images);
+          resultNode.innerHTML = images;
+        };
+
+        xhr.onerror = function () {
+          writeOutput("При отправке запроса произошла ошибка");
+        }
+      };
+
+
+      // 6. Пишим функцию для добавения текста в документ
+      function writeOutput(message) {
+        resultNode.innerText = message;
+      };
+
+
+      // 2. Накидываем обработчик событий на кнопку и выстраиваем общию логику работы
+      buttonNode.addEventListener("click", () => {
+        let page = +inputPageNode.value;
+        let limit = +inputLimitNode.value;
+        let valuesRange = [1, 10];
+
+        if (validateValue(page, valuesRange) && validateValue(limit, valuesRange)) {
+          sendRequest(page, limit);
+        } else if (validateValue(page, valuesRange)) {
+          writeOutput("Лимит вне диапазона от 1 до 10");
+        } else if (validateValue(limit, valuesRange)) {
+          writeOutput("Номер страницы вне диапазона от 1 до 10");
+        } else {
+          writeOutput("Номер страницы и лимит вне диапазона от 1 до 10");
+        }
+      });
+
+
+      // 3. При загрузке и перезагрузке страницы сработает обработчик, который вызовет функцию localStorage.getItem и
+      // покажет те же картинки, которые пользователь запрашивал ранее.
+      document.addEventListener("DOMContentLoaded", () => {
+        let imagesHtml = localStorage.getItem("images");
+        if (imagesHtml) {
+          resultNode.innerHTML = imagesHtml;
+        }
+      });
+  </script>
+</body>
+
+</html>
