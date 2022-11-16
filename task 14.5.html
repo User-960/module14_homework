@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .m-class, h1 {
+      text-align: center;
+    }
+  
+    .btn-sub {
+      padding: 0;
+      background-color: transparent;
+      border: none;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: none;
+      cursor: pointer;
+      margin: 5px 10px;
+      padding: 10px 15px;
+      border-radius: 1px;
+      font-size: 12px;
+      line-height: 15px;
+      text-transform: uppercase;
+      color: white;
+      background: blue;
+      transition: 0.3s;
+    }
+  </style>
+</head>
+
+<body>
+  <section>
+    <h1>ДЗ</h1>
+    <div class="m-class">
+      <div class="form-group">
+        <label for="inputOne">Введите число</label><br>
+        <input type="number" id="inputOne" class="form-control-1"></input>
+      </div>
+      <div class="form-group">
+        <label for="inputTwo">Введите число</label><br>
+        <input type="number" id="inputTwo" class="form-control-2"></input>
+      </div>
+      <button type="submit" id="button" class="btn-sub">Submit</button>
+      <div id="result">Здесь будет результат запроса</div>
+    </div>
+  </section>
+  <script>
+    // Находим все узлы с которыми будем работать
+      let buttonNode = document.querySelector('.btn-sub');
+      let inpOne = document.querySelector('.form-control-1');
+      let inpTwo = document.querySelector('.form-control-2');
+      const resultNode = document.getElementById('result');
+
+      // Навешиваем обработчик события на кнопку с функцией запуска всех операций
+      buttonNode.addEventListener("click", () => {
+        let valueOne = inpOne.value;
+        let valueTwo = inpTwo.value;
+
+        // Проверяем числа в диапозоне от 100 до 300
+        if ((valueOne >= 100 && valueOne <= 300) && (valueTwo >= 100 && valueTwo <= 300)) {
+          // Урл на сервер куда будем делать запрос
+          fetch(`https://picsum.photos/${valueOne}/${valueTwo}`)
+            .then((response) => {
+              // Вводим ответ сервера в Документ
+              resultNode.innerHTML = `<img src=${response.url}>`;
+            })
+
+            .catch(() => {
+              resultNode.innerHTML = "error";
+            })
+        } else {
+          resultNode.innerHTML = `Одно из чисел вне диапазона от 100 до 300`;
+        }
+      });
+  </script>
+</body>
+
+</html>
